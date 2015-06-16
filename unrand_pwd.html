@@ -1,0 +1,70 @@
+<!doctype html>
+<!-- Last Mod: 27 April 2015 @ 11:19 PM -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+
+  <title>Not a random password generator</title>
+  <meta name="description" content="Pashphrase Hasher"/>
+  <meta name="author" content="QUINTIX"/>
+	
+	<script src="http://crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/sha256.js"></script>
+	<script src="http://crypto-js.googlecode.com/svn/tags/3.1.2/build/components/enc-base64-min.js"></script>
+
+<script>
+"use strict";
+
+/*todo: make regex filter editable and toLowerCase optional
+both are there to make recall easier based on the assumption that the cropped hash will still have a much smaller probability space than whatever text is put in*/
+function clean(phrase){return phrase.toLowerCase().replace(/[\W\d]/g,"");}
+
+/*actual 'password generation'; something more (or would it be less?) sophisticated could be done, say using the hash as a seed for a CSPRNG (just now learned that acronym -- 15 June) to be used by a more traditional password generator; but IMO this (and the things I added for the full-fledged standalone app I've been working on) is plenty good enough*/
+function trimB64_sha256(string, length)
+	{var hash = CryptoJS.SHA256(string);
+	 return hash.toString(CryptoJS.enc.Base64).substring(0,length);}
+//todo: enforce mix-case letters; sanity check for length 
+	 
+//	console.log(trimB64_sha256(cleaned_input,9));
+
+//use passout to puke hash
+function updateOut() 
+	{ //taste and chew
+	var passOut = document.getElementById("passOut");
+	var passPhrase = document.getElementById("passPhrase");
+    var phrase = clean(passPhrase.value);
+    var charsCaptured = phrase.Length; //todo: enforce minimum characters
+    var pwlength = passLength.value;
+
+    //turn into chyme
+    var password = trimB64_sha256(phrase, pwlength);
+
+    //puke
+    passOut.value = password;}
+
+function passLength_onchange(){
+	var passLength = document.getElementById("passLength");
+    document.getElementById("length").innerHTML = passLength.value;
+	updateOut();}
+
+
+</script>
+<style type="text/css">
+	body{ font-family:sans-serif; }
+	form{ max-width:768px; margin-left:auto; margin-right:auto; }
+	table td {border:solid 1px}
+</style>
+</head>
+
+<body onload="updateOut()">
+	<form>
+		<div><span>Passphrase: </span>
+			 <span><input type="text" style="width:100%" id="passPhrase" value="Correct Horse? battery staple!" oninput="updateOut()"/><span></div>
+		<div><span style="float:left">Password Length: </span>
+		     <span style="float:right; width:3em; text-align:right" id="length"> 9 </span>
+			<input id="passLength" type="range" min="6" max="16" step="1" value="9" style="display:block; width:256px" oninput="passLength_onchange()"/>
+		<div>	<span>Resulting Password: </span>
+				<span><input id="passOut" type="text" readonly="true"/></span>
+		</div>
+	</form>
+</body>
+</html>
