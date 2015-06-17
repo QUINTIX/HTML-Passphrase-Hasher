@@ -3,6 +3,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <title>Not a random password generator</title>
   <meta name="description" content="Pashphrase Hasher"/>
@@ -20,8 +21,8 @@ function clean(phrase){return phrase.toLowerCase().replace(/[\W\d]/g,"");}
 
 /*actual 'password generation'; something more (or would it be less?) sophisticated could be done, say using the hash as a seed for a CSPRNG (just now learned that acronym -- 15 June) to be used by a more traditional password generator; but IMO this (and the things I added for the full-fledged standalone app I've been working on) is plenty good enough*/
 function trimB64_sha256(string, length)
-	{var hash = CryptoJS.SHA256(string);
-	 return hash.toString(CryptoJS.enc.Base64).substring(0,length);}
+{	var hash = CryptoJS.SHA256(string);
+	return hash.toString(CryptoJS.enc.Base64).substring(0,length);}
 //todo: enforce mix-case letters; sanity check for length 
 	 
 //	console.log(trimB64_sha256(cleaned_input,9));
@@ -41,8 +42,8 @@ function updateOut()
     //puke
     passOut.value = password;}
 
-function passLength_onchange(){
-	var passLength = document.getElementById("passLength");
+function passLength_onchange()
+{	var passLength = document.getElementById("passLength");
     document.getElementById("length").innerHTML = passLength.value;
 	updateOut();}
 
@@ -50,20 +51,31 @@ function passLength_onchange(){
 </script>
 <style type="text/css">
 	body{ font-family:sans-serif; }
-	form{ max-width:768px; margin-left:auto; margin-right:auto; }
-	table td {border:solid 1px}
+	form{ max-width:768px; margin-left:auto; margin-right:auto;}
+	form div {display:flex; margin-bottom:.5em}
+	/* form div span {flex-grow:1} */
+	/*form div {display:block}*/
+	.lables{ margin-right:.5em} 
+	#length {float:right; width:3em; text-align:right}
+	#passPhrase {width:100%;}
+	#passLength {display:inline-flex; flex-grow:100}
+	#holdPhrase {display:inline-flex; flex-grow:100}	
 </style>
 </head>
 
 <body onload="updateOut()">
 	<form>
-		<div><span>Passphrase: </span>
-			 <span><input type="text" style="width:100%" id="passPhrase" value="Correct Horse? battery staple!" oninput="updateOut()"/><span></div>
-		<div><span style="float:left">Password Length: </span>
-		     <span style="float:right; width:3em; text-align:right" id="length"> 9 </span>
-			<input id="passLength" type="range" min="6" max="16" step="1" value="9" style="display:block; width:256px" oninput="passLength_onchange()"/>
-		<div>	<span>Resulting Password: </span>
-				<span><input id="passOut" type="text" readonly="true"/></span>
+		<div><span class="lables">Passphrase: </span>
+			 <span id="holdPhrase"><input type="text" id="passPhrase"
+             		value="Correct Horse? battery staple!" oninput="updateOut()"/><span></div>
+		
+        <div><span class="lables">Password Length: </span>
+
+			<input id="passLength" type="range" min="6" max="16" step="1" value="9" oninput="passLength_onchange()"/>
+		     <span id="length"> 9 </span>
+         </div>
+		<div>	<span class="lables">Resulting Password: </span>
+				<span><input id="passOut" type="text" readonly/></span>
 		</div>
 	</form>
 </body>
