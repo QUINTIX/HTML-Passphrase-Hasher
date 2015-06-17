@@ -7,6 +7,6 @@ there can just be hints and pw length there instead. Not as convenient though
 and may prove entirely unnecessary... 
 
 In fact it might be found to be a dumb idea once someone with a cryptography 
-background gives it a look, but got me an A in a java course and have recieve 
+background gives it a look, but got me an A in a java course and have I received 
 complements on (at least the idea of) it so far from a professional java dev 
 and a CISSP, so I am running with it.
