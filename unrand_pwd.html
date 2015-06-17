@@ -47,6 +47,14 @@ function passLength_onchange()
     document.getElementById("length").innerHTML = passLength.value;
 	updateOut();}
 
+function blur_onchange()
+	{var passOut = document.getElementById("passOut");
+	var passPhrase = document.getElementById("passPhrase");
+	var blurCheck = document.getElementById("blur").checked;
+	
+	if(blurCheck){passPhrase.className=passOut.className="hideable"}
+	else{passPhrase.className=passOut.className=null;}
+	}
 
 </script>
 <style type="text/css">
@@ -55,27 +63,34 @@ function passLength_onchange()
 	form div {display:flex; margin-bottom:.5em}
 	/* form div span {flex-grow:1} */
 	/*form div {display:block}*/
-	.lables{ margin-right:.5em} 
-	#length {float:right; width:3em; text-align:right}
+	.labels{ margin-right:.5em} 
+	#length {float:right; width:2em; text-align:right}
 	#passPhrase {width:100%;}
-	#passLength {display:inline-flex; flex-grow:100}
-	#holdPhrase {display:inline-flex; flex-grow:100}	
+	#passLength, #holdPhrase, #holdPass {display:inline-flex; flex-grow:100}
+	/* {display:inline-flex; flex-grow:100} */
+	#obCntrl {float:right}
+	
+	/*rational: less secure than replacement chars ala password boxes;
+	 but make it possible to catch some typos and recognize a partially memorized password*/
+	.hideable {color:transparent; text-shadow: 0 0 6px rgba(0,0,0,1.0);}
+	.hideable:active{color:inherit; text-shadow:none;}
 </style>
 </head>
 
 <body onload="updateOut()">
 	<form>
-		<div><span class="lables">Passphrase: </span>
-			 <span id="holdPhrase"><input type="text" id="passPhrase"
+		<div><span class="labels">Passphrase: </span>
+			 <span id="holdPhrase"><input class="hideable" type="text" id="passPhrase"
              		value="Correct Horse? battery staple!" oninput="updateOut()"/><span></div>
 		
-        <div><span class="lables">Password Length: </span>
+        <div><span class="labels">Password Length: </span>
 
 			<input id="passLength" type="range" min="6" max="16" step="1" value="9" oninput="passLength_onchange()"/>
 		     <span id="length"> 9 </span>
          </div>
-		<div>	<span class="lables">Resulting Password: </span>
-				<span><input id="passOut" type="text" readonly/></span>
+		<div>	<span class="labels">Resulting Password: </span>
+				<span id="holdPass"><input class="hideable" id="passOut" type="text" readonly/></span>
+                <span id="obCntrl">Obscure Text? <input type="checkbox" id="blur" checked="true" onChange="blur_onchange()"/></span>
 		</div>
 	</form>
 </body>
