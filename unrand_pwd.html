@@ -1,5 +1,4 @@
 <!doctype html>
-<!-- Last Mod: 3 July 2015 @ 7:11 PM -->
 <html lang="en">
 <head>
   <meta charset="utf-8"/>
@@ -53,25 +52,35 @@ function trimB64_sha256(string, length)
 
 //use passout to puke hash
 function updateOut() 
-	{ //taste and chew
+{ //taste and chew
+	const MIN_IN = 12;
 	var passOut = document.getElementById("passOut");
 	var passPhrase = document.getElementById("passPhrase");
     var phrase = clean(passPhrase.value);
-    var charsCaptured = phrase.Length; //todo: enforce minimum characters
+    var charsCaptured = phrase.length; 
     var pwlength = passLength.value;
-
-    //turn into chyme
-    var password = trimB64_sha256(phrase, pwlength);
-
-    //puke
-    passOut.value = password;}
+	var blurCheck = document.getElementById("blur").checked;
+	
+	//nervous about changing an element's CSS class with every keypress
+	if (charsCaptured >=  MIN_IN){ //enforce minimum character input length
+		var password = trimB64_sha256(phrase, pwlength); //turn into chyme		
+		passOut.value = password; //puke
+		
+		if(blurCheck && passOut.className == "unhid"){ passOut.className="hideable";}		
+	} 
+	else{
+		passOut.value = (MIN_IN - charsCaptured) + " remain";
+		if(passOut.className=="hideable" || passOut.className=="null")
+			{passOut.className = "unhid";}
+	}
+}
 
 function passLength_onchange()
 {	var passLength = document.getElementById("passLength");
     document.getElementById("length").innerHTML = passLength.value;
 	updateOut();}
 
-function blur_onchange()
+function blur_onchange() //minor bug: voids "unhid" state (characters remaining state)
 	{var passOut = document.getElementById("passOut");
 	var passPhrase = document.getElementById("passPhrase");
 	var blurCheck = document.getElementById("blur").checked;
@@ -101,7 +110,7 @@ function blur_onchange()
   WPF version does not have that problem, not sure how to fix it*/
   .hideable {color:transparent; text-shadow: 0 0 6px rgba(0,0,0,1.0);}
   .hideable:active{color:inherit; text-shadow:none;}
-
+  .unhid {color:blue}
   #passOut {font-family:monospace}
 </style>
 </head>
