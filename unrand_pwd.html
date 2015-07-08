@@ -2,8 +2,8 @@
 <!-- Last Mod: 3 July 2015 @ 7:11 PM -->
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
   <title>Not a random password generator</title>
   <meta name="description" content="Pashphrase Hasher"/>
@@ -82,25 +82,27 @@ function blur_onchange()
 
 </script>
 <style type="text/css">
-	body{ font-family:sans-serif; }
-	form{ max-width:768px; margin-left:auto; margin-right:auto;}
-	form div {display:flex; margin-bottom:.5em}
-	/* form div span {flex-grow:1} */
-	/*form div {display:block}*/
-	.labels{ margin-right:.5em} 
-	#length {float:right; width:2em; text-align:right}
-	#passPhrase {width:100%;}
-	#passLength, #holdPhrase, #holdPass {display:inline-flex; flex-grow:100}
-	/* {display:inline-flex; flex-grow:100} */
-	#obCntrl {float:right}
-	
-	/*rational: less secure than replacement chars ala password boxes;
-	 but make it possible to catch some typos and recognize a partially memorized password
-	 
-	 unfortunately, selecting text reveals whatever is hidden anyway
-	 WPF version does not have that problem, not sure how to fix it*/
-	.hideable {color:transparent; text-shadow: 0 0 6px rgba(0,0,0,1.0);}
-	.hideable:active{color:inherit; text-shadow:none;}
+  body{ font-family:sans-serif; }
+  form{ max-width:768px; margin-left:auto; margin-right:auto;}
+  form div {display:flex; margin-bottom:.5em}
+  /* form div span {flex-grow:1} */
+  /*form div {display:block}*/
+  .labels{ margin-right:.5em}
+  #length {float:right; width:2em; text-align:right}
+  #passPhrase {width:100%;}
+  #passLength, #holdPhrase, #holdPass {display:inline-flex; flex-grow:100}
+  /* {display:inline-flex; flex-grow:100} */
+  #obCntrl {float:right}
+
+  /*rational: less secure than replacement chars ala password boxes;
+  but make it possible to catch some typos and recognize a partially memorized password
+
+  unfortunately, selecting text reveals whatever is hidden anyway
+  WPF version does not have that problem, not sure how to fix it*/
+  .hideable {color:transparent; text-shadow: 0 0 6px rgba(0,0,0,1.0);}
+  .hideable:active{color:inherit; text-shadow:none;}
+
+  #passOut {font-family:monospace}
 </style>
 </head>
 
