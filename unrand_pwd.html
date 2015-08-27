@@ -92,17 +92,18 @@ function blur_onchange() //minor bug: voids "unhid" state (characters remaining 
 </script>
 <style type="text/css">
   body{ font-family:sans-serif; }
-  form{ max-width:768px; margin-left:auto; margin-right:auto;}
+  form{  margin-left:auto; margin-right:auto;}
   form div {display:flex; margin-bottom:.5em}
   /* form div span {flex-grow:1} */
   /*form div {display:block}*/
-  .labels{ margin-right:.5em}
+  .labels{ margin-right:.5em; flex-shrink:0}
   #length {float:right; width:2em; text-align:right}
-  #passPhrase {width:100%;}
-  #passLength, #holdPhrase, #holdPass {display:inline-flex; flex-grow:100}
+  #passPhrase {flex-grow:1}
+  #passLength, #holdPhrase, #obCntrl {flex-grow:1}
   /* {display:inline-flex; flex-grow:100} */
-  #obCntrl {float:right}
-
+  #obCntrl {text-align:right}
+  #output {flex-wrap: wrap}
+  
   /*rational: less secure than replacement chars ala password boxes;
   but make it possible to catch some typos and recognize a partially memorized password
 
@@ -116,27 +117,27 @@ function blur_onchange() //minor bug: voids "unhid" state (characters remaining 
 </head>
 
 <body onload="updateOut()">
-	<form>
-		<div><span class="labels">Passphrase: </span>
-			 <span id="holdPhrase">
+<form>
+  	<div>
+        <span class="labels">Passphrase: </span>
 			 	<input class="hideable" type="text" id="passPhrase"
              			value="Correct Horse? battery staple!" oninput="updateOut()"/>
-             	</span></div>
+    </div>
 		
-        <div><span class="labels">Password Length: </span>
+    <div><div class="labels">Password Length: </div>
 			<input id="passLength" type="range" min="6" max="16" step="1" value="9" oninput="passLength_onchange()"/>
 		     <span id="length"> 9 </span></div>
-		<div>	<span class="labels">Resulting Password: </span>
-				<span id="holdPass"><input class="hideable" id="passOut" type="text" readonly size="16"/></span>
+		<div id="output">	<span class="labels">Resulting Password: </span>
+				<input class="hideable" id="passOut" type="text" readonly size="16"/>
                 <span id="obCntrl">Obscure Text? <input type="checkbox" id="blur" checked onChange="blur_onchange()"/></span>
 		</div>
         <div style="display:block; font-size:small">
-        <p>Fair warning: Selecting text will make the password visible. 
+      <p>Fair warning: Selecting text will make the password visible. 
              For security reasons javascript on modern browsers cannot write directly to the clipboard, ergo no convient copy button to get around selecting.
              Either way, this tool is not intended as a complete replacement for memorization. 
              Rather it is for recalling passwords that are forgotten <a href="https://xkcd.com/936/">for one reason or another</a> and for the convient generation of new ones.</p>
         <p style="text-align:right">Still, why not <a href="https://www.microsoft.com/en-gb/security/pc-security/password-checker.aspx">check how strong your generated password is?</a></p>
         </div>
-	</form>
+</form>
 </body>
 </html>
