@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+  <title>Not a random password generator</title>
+  <meta name="description" content="Pashphrase Hasher"/>
+  <meta name="author" content="QUINTIX"/>
+	
+	<script src="https://crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/sha256.js"></script>
+	<script src="https://crypto-js.googlecode.com/svn/tags/3.1.2/build/components/enc-base64-min.js"></script>
+	
+<!-- Copyright (c) 2015, QUINTIX
+All rights reserved.
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+* Redistributions of source code must retain the above copyright notice, this
+  list of conditions and the following disclaimer.
+* Redistributions in binary form must reproduce the above copyright notice,
+  this list of conditions and the following disclaimer in the documentation
+  and/or other materials provided with the distribution.
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. -->
+
+<script>
+"use strict";
+/*todo: make regex filter editable and toLowerCase optional
+both are there to make recall easier based on the assumption that the cropped hash will still have a much smaller probability space than whatever text is put in*/
+function clean(phrase){return phrase.toLowerCase().replace(/[\W\d]/g,"");}
+/*actual 'password generation'; something more (or would it be less?) sophisticated could be done, say using the hash as a seed for a CSPRNG (just now learned that acronym -- 15 June) to be used by a more traditional password generator; but IMO this (and the things I added for the full-fledged standalone app I've been working on) is plenty good enough*/
+function trimB64_sha256(string, length)
+{	var hash = CryptoJS.SHA256(string);
+	return hash.toString(CryptoJS.enc.Base64).substring(0,length);}
+//todo: enforce mix-case letters; sanity check for length 
+	 
+//	console.log(trimB64_sha256(cleaned_input,9));
+//use passout to puke hash
+function updateOut() 
+{ //taste and chew
+	const MIN_IN = 12;
+	var passOut = document.getElementById("passOut");
+	var passPhrase = document.getElementById("passPhrase");
+    var phrase = clean(passPhrase.value);
+    var charsCaptured = phrase.length; 
+    var pwlength = passLength.value;
+	var blurCheck = document.getElementById("blur").checked;
+	
+	//nervous about changing an element's CSS class with every keypress
+	if (charsCaptured >=  MIN_IN){ //enforce minimum character input length
+		var password = trimB64_sha256(phrase, pwlength); //turn into chyme		
+		passOut.value = password; //puke
+		
+		if(blurCheck && passOut.className == "unhid"){ passOut.className="hideable";}		
+	} 
+	else{
+		passOut.value = (MIN_IN - charsCaptured) + " remain";
+		if(passOut.className=="hideable" || passOut.className=="null")
+			{passOut.className = "unhid";}
+	}
+}
+function passLength_onchange()
+{	var passLength = document.getElementById("passLength");
+    document.getElementById("length").innerHTML = passLength.value;
+	updateOut();}
+function blur_onchange() //minor bug: voids "unhid" state (characters remaining state)
+	{var passOut = document.getElementById("passOut");
+	var passPhrase = document.getElementById("passPhrase");
+	var blurCheck = document.getElementById("blur").checked;
+	
+	if(blurCheck){passPhrase.className=passOut.className="hideable"}
+	else{passPhrase.className=passOut.className=null;}
+	}
+</script>
+<style type="text/css">
+  body{ font-family:sans-serif; }
+  form{  margin-left:auto; margin-right:auto;}
+  form div {display:flex; margin-bottom:.5em}
+  /* form div span {flex-grow:1} */
+  /*form div {display:block}*/
+  .labels{ margin-right:.5em; flex-shrink:0}
+  #length {float:right; width:2em; text-align:right}
+  #passPhrase {flex-grow:1}
+  #passLength, #holdPhrase, #obCntrl {flex-grow:1}
+  /* {display:inline-flex; flex-grow:100} */
+  #obCntrl {text-align:right}
+  #output {flex-wrap: wrap}
+  
+  /*rational: less secure than replacement chars ala password boxes;
+  but make it possible to catch some typos and recognize a partially memorized password
+  unfortunately, selecting text reveals whatever is hidden anyway
+  WPF version does not have that problem, not sure how to fix it*/
+  .hideable {color:transparent; text-shadow: 0 0 6px rgba(0,0,0,1.0);}
+  .hideable:active{color:inherit; text-shadow:none;}
+  .unhid {color:blue}
+  #passOut {font-family:monospace}
+</style>
+</head>
+
+<body onload="updateOut()">
+<form>
+  	<div>
+        <span class="labels">Passphrase: </span>
+			 	<input class="hideable" type="text" id="passPhrase"
+             			value="Correct Horse? battery staple!" oninput="updateOut()"/>
+    </div>
+		
+    <div><div class="labels">Password Length: </div>
+			<input id="passLength" type="range" min="6" max="16" step="1" value="9" oninput="passLength_onchange()"/>
+		     <span id="length"> 9 </span></div>
+		<div id="output">	<span class="labels">Resulting Password: </span>
+				<input class="hideable" id="passOut" type="text" readonly size="16"/>
+                <span id="obCntrl">Obscure Text? <input type="checkbox" id="blur" checked onChange="blur_onchange()"/></span>
+		</div>
+        <div style="display:block; font-size:small">
+      <p>Fair warning: Selecting text will make the password visible. 
+             For security reasons javascript on modern browsers cannot write directly to the clipboard, ergo no convient copy button to get around selecting.
+             Either way, this tool is not intended as a complete replacement for memorization. 
+             Rather it is for recalling passwords that are forgotten <a href="https://xkcd.com/936/">for one reason or another</a> and for the convient generation of new ones.</p>
+        <p style="text-align:right">Still, why not <a href="https://www.microsoft.com/en-gb/security/pc-security/password-checker.aspx">check how strong your generated password is?</a></p>
+        </div>
+</form>
+</body>
+</html>
