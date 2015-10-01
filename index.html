@@ -43,6 +43,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 <script>
 "use strict";
+/* sigh, global variables */
+var passOut, passPhrase, passLength;
+
 /*todo: make regex filter editable and toLowerCase optional
 both are there to make recall easier based on the assumption that the cropped hash will still have a much smaller probability space than whatever text is put in*/
 function clean(phrase){return phrase.toLowerCase().replace(/[\W\d]/g,"");}
@@ -51,15 +54,12 @@ function trimB64_sha256(string, length)
 {	var hash = CryptoJS.SHA256(string);
 	return hash.toString(CryptoJS.enc.Base64).substring(0,length);}
 //todo: enforce mix-case letters; sanity check for length 
-	 
 //	console.log(trimB64_sha256(cleaned_input,9));
 //use passout to puke hash
 function updateOut() 
 { //taste and chew
 	const MIN_IN = 12;
-	var passOut = document.getElementById("passOut");
-	var passPhrase = document.getElementById("passPhrase");
-    	var passLength = document.getElementById("passLength");
+
     	var phrase = clean(passPhrase.value);
     	var charsCaptured = phrase.length; 
     	var pwlength = passLength.value;
@@ -79,12 +79,12 @@ function updateOut()
 	}
 }
 function passLength_onchange()
-{	var passLength = document.getElementById("passLength");
-    document.getElementById("length").innerHTML = passLength.value;
+{	//var passLength = document.getElementById("passLength");
+	document.getElementById("length").innerHTML = passLength.value;
 	updateOut();}
 function blur_onchange() //minor bug: voids "unhid" state (characters remaining state)
-{	var passOut = document.getElementById("passOut");
-	var passPhrase = document.getElementById("passPhrase");
+{	//var passOut = document.getElementById("passOut");
+	//var passPhrase = document.getElementById("passPhrase");
 	var blurCheck = document.getElementById("blur").checked;
 	
 	if(blurCheck){
@@ -92,6 +92,22 @@ function blur_onchange() //minor bug: voids "unhid" state (characters remaining 
 		passOut.className = "hideable";
 	}else{  passPhrase.className = null;
 		passOut.className=null;}
+}
+
+function clearExample() //clears the example pass phrase on first click
+{	//var passPhrase = document.getElementById("passPhrase"); 
+		//should not be so nervous about adding global variables
+		//these extra getElementById's may be redundant
+	passPhrase.removeEventListener("mouseup",clearExample);
+	passPhrase.select();
+}
+
+function onLoaded() //startup stuff
+{	passOut = document.getElementById("passOut");
+	passPhrase = document.getElementById("passPhrase");
+    	passLength = document.getElementById("passLength");
+	passPhrase.addEventListener("mouseup",clearExample);
+	updateOut();
 }
 </script>
 <style type="text/css">
@@ -119,11 +135,11 @@ function blur_onchange() //minor bug: voids "unhid" state (characters remaining 
 </style>
 </head>
 
-<body onload="updateOut()">
+<body onload="onLoaded()">
 <form>
   	<div>
         <span class="labels">Passphrase: </span>
-			 	<input class="hideable" type="text" id="passPhrase"
+			 	<input class="hideable" type="text" id="passPhrase" 
              			value="Correct Horse? battery staple!" oninput="updateOut()"/>
     </div>
 		
