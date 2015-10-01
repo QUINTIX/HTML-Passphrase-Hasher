@@ -49,9 +49,10 @@ function updateOut()
 	const MIN_IN = 12;
 	var passOut = document.getElementById("passOut");
 	var passPhrase = document.getElementById("passPhrase");
-    var phrase = clean(passPhrase.value);
-    var charsCaptured = phrase.length; 
-    var pwlength = passLength.value;
+    	var passLength = document.getElementById("passLength");
+    	var phrase = clean(passPhrase.value);
+    	var charsCaptured = phrase.length; 
+    	var pwlength = passLength.value;
 	var blurCheck = document.getElementById("blur").checked;
 	
 	//nervous about changing an element's CSS class with every keypress
@@ -59,11 +60,11 @@ function updateOut()
 		var password = trimB64_sha256(phrase, pwlength); //turn into chyme		
 		passOut.value = password; //puke
 		
-		if(blurCheck && passOut.className == "unhid"){ passOut.className="hideable";}		
+		if(blurCheck && passOut.className === "unhid"){ passOut.className="hideable";}		
 	} 
 	else{
 		passOut.value = (MIN_IN - charsCaptured) + " remain";
-		if(passOut.className=="hideable" || passOut.className=="null")
+		if(passOut.className === "hideable" || passOut.className === "null")
 			{passOut.className = "unhid";}
 	}
 }
@@ -72,13 +73,16 @@ function passLength_onchange()
     document.getElementById("length").innerHTML = passLength.value;
 	updateOut();}
 function blur_onchange() //minor bug: voids "unhid" state (characters remaining state)
-	{var passOut = document.getElementById("passOut");
+{	var passOut = document.getElementById("passOut");
 	var passPhrase = document.getElementById("passPhrase");
 	var blurCheck = document.getElementById("blur").checked;
 	
-	if(blurCheck){passPhrase.className=passOut.className="hideable"}
-	else{passPhrase.className=passOut.className=null;}
-	}
+	if(blurCheck){
+		passPhrase.className = "hideable";
+		passOut.className = "hideable";
+	}else{  passPhrase.className = null;
+		passOut.className=null;}
+}
 </script>
 <style type="text/css">
   body{ font-family:sans-serif; }
