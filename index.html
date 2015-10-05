@@ -58,8 +58,9 @@ function trimB64_sha256(string, length)
 //use passout to puke hash
 function updateOut() 
 { //taste and chew
-	const MIN_IN = 12;
-
+	/*const*/ MIN_IN = 12;
+	//http://stackoverflow.com/questions/22603078/syntaxerror-use-of-const-in-strict-mode
+	
     	var phrase = clean(passPhrase.value);
     	var charsCaptured = phrase.length; 
     	var pwlength = passLength.value;
@@ -78,10 +79,12 @@ function updateOut()
 			{passOut.className = "unhid";}
 	}
 }
+
 function passLength_onchange()
 {	//var passLength = document.getElementById("passLength");
 	document.getElementById("length").innerHTML = passLength.value;
 	updateOut();}
+
 function blur_onchange() //minor bug: voids "unhid" state (characters remaining state)
 {	//var passOut = document.getElementById("passOut");
 	//var passPhrase = document.getElementById("passPhrase");
@@ -109,6 +112,7 @@ function onLoaded() //startup stuff
 	passPhrase.addEventListener("mouseup",clearExample);
 	updateOut();
 }
+
 </script>
 <style type="text/css">
   body{ font-family:sans-serif; }
