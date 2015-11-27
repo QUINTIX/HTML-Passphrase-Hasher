@@ -7,10 +7,8 @@
   <title>Not a random password generator</title>
   <meta name="description" content="Pashphrase Hasher"/>
   <meta name="author" content="QUINTIX"/>
-	<script src="./components/core.js"></script>
-	<script src="./components/hmac.js"></script>
-	<script src="./components/sha256.js"></script>  
-
+	
+	<script src="./rollups/sha256.js"></script>
 	<script src="./components/enc-base64-min.js"></script>
 	
 <!-- Copyright (c) 2015, QUINTIX
@@ -46,7 +44,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <script>
 "use strict";
 /* sigh, global variables */
-var passOut, passPhrase, passLength, secretPin;
+var passOut, passPhrase, passLength;
 
 /*todo: make regex filter editable and toLowerCase optional
 both are there to make recall easier based on the assumption that the cropped hash will still have a much smaller probability space than whatever text is put in*/
@@ -55,32 +53,22 @@ function clean(phrase){return phrase.toLowerCase().replace(/[\W\d]/g,"");}
 function trimB64_sha256(string, length)
 {	var hash = CryptoJS.SHA256(string);
 	return hash.toString(CryptoJS.enc.Base64).substring(0,length);}
-function trimB64_sha256HMAC(string,key,length)
-{	var hash = CryptoJS.HmacSHA256(string,key);
-	return hash.toString(CryptoJS.enc.Base64).substring(0,length);}
 //todo: enforce mix-case letters; sanity check for length 
 //	console.log(trimB64_sha256(cleaned_input,9));
 //use passout to puke hash
-
 function updateOut() 
 { //taste and chew
 	/*const*/ var MIN_IN = 12;
-	/*const*/ var MIN_PIN = 4;
 	//http://stackoverflow.com/questions/22603078/syntaxerror-use-of-const-in-strict-mode
 	
     	var phrase = clean(passPhrase.value);
     	var charsCaptured = phrase.length; 
     	var pwlength = passLength.value;
 	var blurCheck = document.getElementById("blur").checked;
-	var pin = (secretPin.value);
 	
 	//nervous about changing an element's CSS class with every keypress
 	if (charsCaptured >=  MIN_IN){ //enforce minimum character input length
-		var password;
-		if(pin.length < MIN_PIN)
-		{password = trimB64_sha256(phrase, pwlength);} //turn into chyme		
-		else {password = trimB64_sha256HMAC(phrase,pin,pwlength);}
-		
+		var password = trimB64_sha256(phrase, pwlength); //turn into chyme		
 		passOut.value = password; //puke
 		
 		if(blurCheck && passOut.className === "unhid"){ passOut.className="hideable";}		
@@ -122,38 +110,24 @@ function onLoaded() //startup stuff
 	passPhrase = document.getElementById("passPhrase");
     	passLength = document.getElementById("passLength");
 	passPhrase.addEventListener("mouseup",clearExample);
-	secretPin = document.getElementById("secretPin");
 	updateOut();
 }
 
 </script>
 <style type="text/css">
   body{ font-family:sans-serif; }
-<<<<<<< HEAD
   form{  margin-left:auto; margin-right:auto; max-width:36em}
   form div {display:flex; margin-bottom:.5em}
   /* form div span {flex-grow:1} */
   /*form div {display:block}*/
-  .labels{ margin-right:.25em; flex-shrink:0}
-=======
-  form{ max-width:768px; margin-left:auto; margin-right:auto;}
-  form div {display:flex; margin-bottom:.5em}
-  /* form div span {flex-grow:1} */
-  /*form div {display:block}*/
-  .labels{ margin-right:.5em}
->>>>>>> parent of b141551... CSS layout slightly less broken
+  .labels{ margin-right:.5em; flex-shrink:0}
   #length {float:right; width:2em; text-align:right}
-  #passPhrase {width:100%;}
-  #passLength, #holdPhrase, #holdPass {display:inline-flex; flex-grow:100}
+  #passPhrase {flex-grow:1}
+  #passLength, #holdPhrase, #obCntrl {flex-grow:1}
   /* {display:inline-flex; flex-grow:100} */
-<<<<<<< HEAD
-  #obCntrl {}
+  #obCntrl {text-align:right}
   #output {flex-wrap: wrap}
   
-=======
-  #obCntrl {float:right}
-
->>>>>>> parent of b141551... CSS layout slightly less broken
   /*rational: less secure than replacement chars ala password boxes;
   but make it possible to catch some typos and recognize a partially memorized password
   unfortunately, selecting text reveals whatever is hidden anyway
@@ -162,51 +136,31 @@ function onLoaded() //startup stuff
   .hideable:active{color:inherit; text-shadow:none;}
   .unhid {color:blue}
   #passOut {font-family:monospace}
-  #secretPin {margin-right:1em}
-  
 </style>
 </head>
 
-<<<<<<< HEAD
 <body onload="onLoaded()">
 <form>
   	<div>
         <span class="labels">Passphrase: </span>
 			 	<input class="hideable" type="text" id="passPhrase" 
-=======
-<body onload="updateOut()">
-	<form>
-		<div><span class="labels">Passphrase: </span>
-			 <span id="holdPhrase">
-			 	<input class="hideable" type="text" id="passPhrase"
->>>>>>> parent of b141551... CSS layout slightly less broken
              			value="Correct Horse? battery staple!" oninput="updateOut()"/>
-             	</span></div>
+    </div>
 		
-        <div><span class="labels">Password Length: </span>
+    <div><div class="labels">Password Length: </div>
 			<input id="passLength" type="range" min="6" max="16" step="1" value="9" oninput="passLength_onchange()"/>
 		     <span id="length"> 9 </span></div>
-<<<<<<< HEAD
-		<div id="output">	
-        <span class="labels">Pin:</span>
-        <input type="password" id="secretPin" size="4" onInput="updateOut()"/>
-                <span id="obCntrl">Obscure Text?<input type="checkbox" id="blur" checked onChange="blur_onchange()"/></span>
-        <span><span class="labels">Resulting Password: </span>
-  			<input class="hideable" id="passOut" type="text" readonly size="16"/></span>
-
-</div>
-=======
-		<div>	<span class="labels">Resulting Password: </span>
-				<span id="holdPass"><input class="hideable" id="passOut" type="text" readonly size="16"/></span>
+		<div id="output">	<span class="labels">Resulting Password: </span>
+				<input class="hideable" id="passOut" type="text" readonly size="16"/>
                 <span id="obCntrl">Obscure Text? <input type="checkbox" id="blur" checked onChange="blur_onchange()"/></span>
 		</div>
->>>>>>> parent of b141551... CSS layout slightly less broken
         <div style="display:block; font-size:small">
-        <p>Fair warning: Selecting text will make the password visible. 
+      <p>Fair warning: Selecting text will make the password visible. 
              For security reasons javascript on modern browsers cannot write directly to the clipboard, ergo no convient copy button to get around selecting.
              Either way, this tool is not intended as a complete replacement for memorization. 
              Rather it is for recalling passwords that are forgotten <a href="https://xkcd.com/936/">for one reason or another</a> and for the convient generation of new ones.</p>
-        <p style="text-align:right">Still, why not <a href="http://www.passwordmeter.com/">check how strong your generated password is?</a></p>
+        <p style="text-align:right">Still, why not <a href="https://www.microsoft.com/en-gb/security/pc-security/password-checker.aspx">check how strong your generated password is?</a></p>
         </div>
-	</form>
+</form>
 </body>
+</html>
