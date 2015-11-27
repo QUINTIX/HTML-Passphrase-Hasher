@@ -129,18 +129,31 @@ function onLoaded() //startup stuff
 </script>
 <style type="text/css">
   body{ font-family:sans-serif; }
+<<<<<<< HEAD
   form{  margin-left:auto; margin-right:auto; max-width:36em}
   form div {display:flex; margin-bottom:.5em}
   /* form div span {flex-grow:1} */
   /*form div {display:block}*/
   .labels{ margin-right:.25em; flex-shrink:0}
+=======
+  form{ max-width:768px; margin-left:auto; margin-right:auto;}
+  form div {display:flex; margin-bottom:.5em}
+  /* form div span {flex-grow:1} */
+  /*form div {display:block}*/
+  .labels{ margin-right:.5em}
+>>>>>>> parent of b141551... CSS layout slightly less broken
   #length {float:right; width:2em; text-align:right}
-  #passPhrase {flex-grow:1}
-  #passLength, #holdPhrase, #obCntrl {flex-grow:1}
+  #passPhrase {width:100%;}
+  #passLength, #holdPhrase, #holdPass {display:inline-flex; flex-grow:100}
   /* {display:inline-flex; flex-grow:100} */
+<<<<<<< HEAD
   #obCntrl {}
   #output {flex-wrap: wrap}
   
+=======
+  #obCntrl {float:right}
+
+>>>>>>> parent of b141551... CSS layout slightly less broken
   /*rational: less secure than replacement chars ala password boxes;
   but make it possible to catch some typos and recognize a partially memorized password
   unfortunately, selecting text reveals whatever is hidden anyway
@@ -153,17 +166,26 @@ function onLoaded() //startup stuff
   
 </style>
 
+<<<<<<< HEAD
 <body onload="onLoaded()">
 <form>
   	<div>
         <span class="labels">Passphrase: </span>
 			 	<input class="hideable" type="text" id="passPhrase" 
+=======
+<body onload="updateOut()">
+	<form>
+		<div><span class="labels">Passphrase: </span>
+			 <span id="holdPhrase">
+			 	<input class="hideable" type="text" id="passPhrase"
+>>>>>>> parent of b141551... CSS layout slightly less broken
              			value="Correct Horse? battery staple!" oninput="updateOut()"/>
-    </div>
+             	</span></div>
 		
-    <div><div class="labels">Password Length: </div>
+        <div><span class="labels">Password Length: </span>
 			<input id="passLength" type="range" min="6" max="16" step="1" value="9" oninput="passLength_onchange()"/>
 		     <span id="length"> 9 </span></div>
+<<<<<<< HEAD
 		<div id="output">	
         <span class="labels">Pin:</span>
         <input type="password" id="secretPin" size="4" onInput="updateOut()"/>
@@ -172,12 +194,18 @@ function onLoaded() //startup stuff
   			<input class="hideable" id="passOut" type="text" readonly size="16"/></span>
 
 </div>
+=======
+		<div>	<span class="labels">Resulting Password: </span>
+				<span id="holdPass"><input class="hideable" id="passOut" type="text" readonly size="16"/></span>
+                <span id="obCntrl">Obscure Text? <input type="checkbox" id="blur" checked onChange="blur_onchange()"/></span>
+		</div>
+>>>>>>> parent of b141551... CSS layout slightly less broken
         <div style="display:block; font-size:small">
-      <p>Fair warning: Selecting text will make the password visible. 
+        <p>Fair warning: Selecting text will make the password visible. 
              For security reasons javascript on modern browsers cannot write directly to the clipboard, ergo no convient copy button to get around selecting.
              Either way, this tool is not intended as a complete replacement for memorization. 
              Rather it is for recalling passwords that are forgotten <a href="https://xkcd.com/936/">for one reason or another</a> and for the convient generation of new ones.</p>
         <p style="text-align:right">Still, why not <a href="http://www.passwordmeter.com/">check how strong your generated password is?</a></p>
         </div>
-</form>
+	</form>
 </body>
