@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8"/>
@@ -47,6 +47,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 "use strict";
 /* sigh, global variables */
 var passOut, passPhrase, passLength, secretPin;
+var kvp = {} //key value pairs, for cookie
+var EXPIRES = new Date(); EXPIRES.setFullYear(EXPIRES.getFullYear()+2);
+var allowCookie = true; //will assign checkbox, eventually
 
 /*todo: make regex filter editable and toLowerCase optional
 both are there to make recall easier based on the assumption that the cropped hash will still have a much smaller probability space than whatever text is put in*/
@@ -60,8 +63,35 @@ function trimB64_sha256HMAC(string,key,length)
 	return hash.toString(CryptoJS.enc.Base64).substring(0,length);}
 //todo: enforce mix-case letters; sanity check for length 
 //	console.log(trimB64_sha256(cleaned_input,9));
-//use passout to puke hash
+        //use passout to puke hash
 
+/* Session cookie */
+      function deserializeCookie(cookieString)
+      { var keypairs = {};
+        var cookieStr = String(cookieString);
+        var splitSemi = cookieStr.split(';');
+ 
+        for (var i = 0; i < splitSemi.length; i++){
+              var ref = splitSemi[i];
+              var eqpos = ref.indexOf('=');
+              var key = ref.slice(0, eqpos).trim();
+              if (key!="expires"){
+                  var val = ref.slice(eqpos + 1, ref.length);
+                  val = decodeURI(val);
+                  keypairs[key] = val;}
+          } 
+        return keypairs;
+      }
+
+      function serializeCookie(keypairs,expire)
+      { //var cookie = "";
+        for(var k in keypairs){
+              var v = encodeURI(keypairs[k]);
+              document.cookie = k + '=' + v + '; path=/; expires=' + expire.toUTCString()}
+        //return cookie;
+      }
+
+/* UI logic*/
 function updateOut() 
 { //taste and chew
 	/*const*/ var MIN_IN = 12;
@@ -123,8 +153,28 @@ function onLoaded() //startup stuff
     	passLength = document.getElementById("passLength");
 	passPhrase.addEventListener("mouseup",clearExample);
 	secretPin = document.getElementById("secretPin");
-	updateOut();
+        
+        //if there is a cookie, load from it
+        if(document.cookie.length != 0)
+        { kvp = deserializeCookie(document.cookie); 
+                if(kvp.hasOwnProperty('pin'))   {secretPin.value = kvp['pin'];}
+                if(kvp.hasOwnProperty('params')){var charDigit = kvp['params'].charAt(0);
+                        var length = parseInt(charDigit,36)+6;
+                        document.getElementById("length").innerHTML=passLength.value=length;}
+        }
+	
+        updateOut();
 }
+
+function onUnload() //cookie saving stuff
+{if(allowCookie){
+        kvp['pin']=secretPin.value; //do not know how to avoid cleartext
+        
+        kvp['params']=(passLength.value - 6).toString(36); /*will eventually include symbol 
+        choices, mandatory character type flags (possibly minimum counts) */
+        
+         serializeCookie(kvp,EXPIRES);
+}}
 
 </script>
 <style type="text/css">
@@ -144,7 +194,8 @@ function onLoaded() //startup stuff
   /*rational: less secure than replacement chars ala password boxes;
   but make it possible to catch some typos and recognize a partially memorized password
   unfortunately, selecting text reveals whatever is hidden anyway
-  WPF version does not have that problem, not sure how to fix it*/
+  WPF version does not have that problem, not sure how to fix it
+ also broken on ie10, ie11 and edge*/
   .hideable {color:transparent; text-shadow: 0 0 6px rgba(0,0,0,1.0);}
   .hideable:active{color:inherit; text-shadow:none;}
   .unhid {color:blue}
@@ -153,31 +204,42 @@ function onLoaded() //startup stuff
   
 </style>
 </head>
-<body onload="onLoaded()">
+
+<body onload="onLoaded()" onunload="onUnload()">
 <form>
-  	<div>
+<div>
         <span class="labels">Passphrase: </span>
-			 	<input class="hideable" type="text" id="passPhrase" 
-             			value="Correct Horse? battery staple!" oninput="updateOut()"/>
-    </div>
+        <input class="hideable" type="text" id="passPhrase" 
+                value="Correct Horse? battery staple!" oninput="updateOut()"/>
+</div>
 		
-    <div><div class="labels">Password Length: </div>
-			<input id="passLength" type="range" min="6" max="16" step="1" value="9" oninput="passLength_onchange()"/>
-		     <span id="length"> 9 </span></div>
-		<div id="output">	
+<div>
+        <div class="labels">Password Length: </div>
+	<input id="passLength" type="range" min="6" max="16" step="1" value="9" oninput="passLength_onchange()" />
+        <span id="length"> 9 </span>  <!-- broken on ie10, ie11 -->
+</div>
+	
+<div id="output">	
         <span class="labels">Pin:</span>
         <input type="password" id="secretPin" size="4" onInput="updateOut()"/>
-                <span id="obCntrl">Obscure Text?<input type="checkbox" id="blur" checked onChange="blur_onchange()"/></span>
+        
+        <span id="obCntrl">Obscure Text?<input type="checkbox" id="blur" checked onChange="blur_onchange()"/></span>
+        
         <span><span class="labels">Resulting Password: </span>
-  			<input class="hideable" id="passOut" type="text" readonly size="16"/></span>
-
+        <input class="hideable" id="passOut" type="text" readonly size="16"/></span>
 </div>
-        <div style="display:block; font-size:small">
-      <p>Fair warning: Selecting text will make the password visible. 
-             For security reasons javascript on modern browsers cannot write directly to the clipboard, ergo no convient copy button to get around selecting.
-             Either way, this tool is not intended as a complete replacement for memorization. 
-             Rather it is for recalling passwords that are forgotten <a href="https://xkcd.com/936/">for one reason or another</a> and for the convient generation of new ones.</p>
-        <p style="text-align:right">Still, why not <a href="http://www.passwordmeter.com/">check how strong your generated password is?</a></p>
-        </div>
+
+<div style="display:block; font-size:small">
+        <p>Fair warning: Selecting text will make the password visible. For 
+security reasons javascript on modern browsers cannot write directly to the 
+clipboard, ergo no convient copy button to get around selecting. Either way, 
+this tool is not intended as a complete replacement for memorization. Rather 
+it is for recalling passwords that are forgotten
+<a href="https://xkcd.com/936/">for one reason or another</a> and for the 
+convient generation of new ones.</p>
+        <p style="text-align:right">
+Still, why not <a href="http://www.passwordmeter.com/">check how strong your 
+generated password is?</a></p>
+</div>
 </form>
 </body>
