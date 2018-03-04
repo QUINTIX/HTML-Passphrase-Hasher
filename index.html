@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" ng-app="pHashr">
 <head>
   	<meta charset="utf-8"/>
   	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -7,12 +7,16 @@
   	<meta name="author" content="QUINTIX"/>
 
   	<title>Not a random password generator</title>
- 	
-	<script src="./components/core-min.js" type="application/javascript"></script>
-	<script src="./components/hmac-min.js" type="application/javascript"></script>
-	<script src="./components/sha256-min.js" type="application/javascript"></script>  
-
-	<script src="./components/enc-base64-min.js" type="application/javascript"></script>
+	 
+	<script	src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+	integrity="sha256-3edrmyuQ0w65f8gfBsqowzjJe2iM6n0nKciPUp8y+7E="
+	crossorigin="anonymous"></script>
+<!--	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js" type="application/javascript"></script> -->
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.js" type="application/javascript"></script>
+	<script src="./components/core.js" type="application/javascript"></script>
+	<script src="./components/hmac.js" type="application/javascript"></script>
+	<script src="./components/sha256.js" type="application/javascript"></script>  
+	<script src="./components/enc-base64.js" type="application/javascript"></script>
 	
 <!-- Copyright (c) 2015, QUINTIX
 
@@ -49,145 +53,6 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
 -->
-
-<script>
-"use strict";
-/* sigh, global variables */
-var passOut, passPhrase, passLength, secretPin, blurCheck;
-var isMSBrowser = navigator.userAgent.match(/(MSIE|Trident|Edge)/) != null;
-
-/*todo: make regex filter editable and toLowerCase optional
-both are there to make recall easier based on the assumption that the cropped
-hash will still have a much smaller probability space than whatever text is
-put in*/
-function clean(phrase){return phrase.toLowerCase().replace(/[\W\d]/g,"");}
-/*actual password generation; something more (or would it be less?)
-sophisticated could be done, say using the hash as a seed for a CSPRNG (just 
-now learned that acronym -- 15 June) to be used by a more traditional password
-generator; but IMO this (and the things I added for the full-fledged standalone
-app I've been working on) is plenty good enough*/
-function trimB64_sha256(string, length)
-{	var hash = CryptoJS.SHA256(string);
-	return hash.toString(CryptoJS.enc.Base64).substring(0,length);}
-function trimB64_sha256HMAC(string,key,length)
-{	var hash = CryptoJS.HmacSHA256(string,key);
-	return hash.toString(CryptoJS.enc.Base64).substring(0,length);}
-//todo: enforce mix-case letters; sanity check for length 
-//	console.log(trimB64_sha256(cleaned_input,9));
-//use passout to puke hash
-
-var hide = isMSBrowser ? 
-function()
-{	if(passPhrase.type == "text") { passPhrase.type = "password"; }
-	if(passOut.className == "status"){
-		passOut.type = "text";}
-	else{ 	if(passOut.type="text") { passOut.type = "password"; } 
-	}
-}:
-function()
-{	if(passPhrase.className != "blurred") { passPhrase.className = "blurred"; }
-	if(passOut.className !="status" || passout.className != "blurred"){
-		passOut.className = "blurred"; }
-};
-
-var reveal = isMSBrowser ? 
-function()
-{	passPhrase.type = "text"
-	passOut.type = "text"
-}:
-function()
-{	passPhrase.className = null;
-	if(passOut.className != "status"){passOut.className = null;}
-};
-
-function updateOut() 
-{ //taste and chew
-	/*const*/ var MIN_IN = 12;
-	/*const*/ var MIN_PIN = 4;
-//http://stackoverflow.com/questions/22603078/syntaxerror-use-of-const-in-strict-mode
-	
-    	var phrase = clean(passPhrase.value);
-    	var charsCaptured = phrase.length; 
-    	var pwlength = passLength.value;
-	var pin = (secretPin.value);
-	
-	if (charsCaptured >=  MIN_IN){ //enforce minimum character input length
-		var password;
-		if(pin.length < MIN_PIN)
-		{password = trimB64_sha256(phrase, pwlength);} //turn into chyme		
-		else {password = trimB64_sha256HMAC(phrase, pin, pwlength);
-			localStorage.setItem("pin", pin); //persist PIN between sessions
-		}
-		
-		passOut.value = password; //puke
-		
-		if( passOut.className === "status" ) { passOut.className=null; }		
-	} 
-	else{ 	
-		passOut.value = (MIN_IN - charsCaptured) + " remain";
-		if(passOut.className != "status")
-			{passOut.className = "status";}
-	}
-	//if(blurCheck.checked){hide();} else {}
-	blur_onchange();
-}
-
-function passLength_onchange()
-{	//var passLength = document.getElementById("passLength");
-	document.getElementById("length").innerHTML = passLength.value;
-	localStorage.setItem
-		("pwLen", passLength.value.toString());//persistance
-	updateOut();}
-
-function blur_onchange() //minor bug: voids "unhid" state (characters remaining state)
-{	//var passOut = document.getElementById("passOut");
-	//var passPhrase = document.getElementById("passPhrase");
-	if(blurCheck.checked){ hide();
-		//passPhrase.className = "blurred";
-		//passOut.className = "blurred";
-	}else{  reveal();
-		//passPhrase.className = null;
-		//passOut.className=null; 
-	}
-}
-
-function clearExample() //clears the example pass phrase on first click
-{	//var passPhrase = document.getElementById("passPhrase"); 
-		//should not be so nervous about adding global variables
-		//these extra getElementById's may be redundant
-	passPhrase.removeEventListener("mouseup",clearExample);
-	passPhrase.select();
-}
-
-function selectFullPW() //default select ends on 'punctuation'
-{	passOut.select(); }
-
-function onLoaded() //startup stuff
-{	passOut = document.getElementById("passOut");
-	passPhrase = document.getElementById("passPhrase");
-    	passLength = document.getElementById("passLength");
-	passPhrase.addEventListener("mouseup",clearExample);
-	secretPin = document.getElementById("secretPin");
-	blurCheck = document.getElementById("blur");
-	if(isMSBrowser){ console.log(navigator.userAgent);
-		passPhrase.className = null;
-		passOut.className = null;
-	}
-
-	//persistance (candidate Pin, Length)
-	var candPin = localStorage.getItem("pin");
-	var candLength = localStorage.getItem("pwLen");
-	secretPin.value = candPin;
-	if(candLength != null) { 
-		passLength.value= parseInt(candLength);
-		document.getElementById("length").innerHTML = passLength.value;
-	}
-
-	updateOut();
-	
-}
-
-</script>
 <style type="text/css">
   body{ font-family:sans-serif; }
   form{  margin-left:auto; margin-right:auto; max-width:36em}
@@ -199,7 +64,7 @@ function onLoaded() //startup stuff
   #passPhrase {flex-grow:1}
   #passLength, #holdPhrase, #obCntrl {flex-grow:1}
   /* {display:inline-flex; flex-grow:100} */
-  #obCntrl { text-align:left}
+  #obCntrl {text-align:left}
   #output {flex-wrap: wrap}
   
   .blurred {color:transparent; text-shadow: 0 0 6px rgba(0,0,0,1.0);}
@@ -209,35 +74,133 @@ function onLoaded() //startup stuff
   .status {color:blue}
   #passOut {font-family:monospace}
   #secretPin {margin-right:1em}
-
 </style>
-</head>
-<body onload="onLoaded()">
-<form>
 
+<script type="application/javascript">
+"use strict";
+var isMSBrowser = navigator.userAgent.match(/(MSIE|Trident|Edge)/) != null;
+
+var pHashr = angular.module('pHashr',[]);
+pHashr.controller('ctrl', function($scope){
+	/*const*/ var MIN_IN = 12;
+	/*const*/ var MIN_PIN = 4;
+	//http://stackoverflow.com/questions/22603078/syntaxerror-use-of-const-in-strict-mode
+
+	$scope.pwOut = "example blurtext" /*String()*/;
+	$scope.pwPhrase = "Correct Horse? battery staple!";	
+
+//	console.log("is there storage? " + (localStorage !== undefined));
+	if(localStorage !== undefined) // for testing locally on IE11
+	{	$scope.pwLength = parseInt(localStorage.getItem("pwLen")) || 9; 
+			$scope.$watch('pwLength', function(_new,_old,_scope){
+/*//persistance*/		localStorage.setItem("pwLen", _new); } ); 
+		$scope.pwPin = localStorage.getItem("pin") || String();
+			$scope.$watch('pwPin',function(_new,_old,_scope){
+				localStorage.setItem("pin", _new); } ); 
+	}	else	{
+		$scope.pwLength = 9;
+		$scope.pin = String();	
+	}
+	$scope.$watch('pwPin', update);
+	$scope.$watch('pwLength', update);
+	$scope.blur = true;	//this is more view than model related
+		$scope.$watch('blur',function (_new,_old,_scope){
+			blurOnChange(_new); return _new; } ) ;
+	
+	$scope.ppRegex = /[\W\d]/g;	//default: remove digits and non-word chars
+	$scope.ppCleaned = String(); 	//cleaned passphrase
+	$scope.$watch('pwPhrase', function (_new,_old,_scope){
+		_scope.ppCleaned = clean(_new, _scope.ppRegex);
+		update();
+		return _new;
+	});
+
+	function clean(phrase,_regex){return phrase.toLowerCase().replace(_regex,"");}
+	/*actual password generation; something more (or would it be less?)
+	sophisticated could be done, say using the hash as a seed for a CSPRNG to be used 
+	by a more traditional password generator; but IMO this (and the things I added 
+	for the full-fledged standalone app I've been working on) is plenty good enough*/
+	function update(){
+		var charsCaptured = $scope.ppCleaned.length; 
+	
+		if (charsCaptured >=  MIN_IN) //enforce minimum character input length
+			if($scope.pwPin.length < MIN_PIN)
+				{ $scope.pwOut = trimB64_sha256(
+					$scope.ppCleaned, $scope.pwLength); } //turn into chyme		
+			else 	{ $scope.pwOut = trimB64_sha256HMAC(
+					$scope.pwCleaned, $scope.pwPin, 
+					$scope.pwLength);}
+		else
+			{ $scope.pwOut = (MIN_IN - charsCaptured) + " remain";}
+	}
+
+	function trimB64_sha256(string, length)
+	{	var hash = CryptoJS.SHA256(string);
+		return hash.toString(CryptoJS.enc.Base64).substring(0,length);}
+	function trimB64_sha256HMAC(string,key,length)
+	{	var hash = CryptoJS.HmacSHA256(string,key);
+		return hash.toString(CryptoJS.enc.Base64).substring(0,length);}
+	//todo: enforce mix-case letters; sanity check for length 
+	//	console.log(trimB64_sha256(cleaned_input,9));
+	//use passout to puke hash
+});
+
+var 	passOut, passPhrase, blurredStuff;
+//if IE/Edge, swap between password and text type, because the use css shadow to blur hack does not work in IE/Edge
+var blurOnChange = function(val){};
+
+//onloaded
+$(function(){
+ 	passOut = $("#passOut"),
+	passPhrase = $("#passPhrase"),
+	blurredStuff = $(".blurred");
+	/*, passLength, secretPin, blurCheck = $("#blurMe")*/;
+	blurOnChange = isMSBrowser ? 
+	function(value){$.each(blurredStuff, 
+		function(x,v){v.type = value ? "password" : "text"})} : 
+	function(value){
+		blurredStuff.toggleClass("blurred",value);};	//otherwise, toggle the shadow/text color css attribute
+	blurOnChange(true);
+	if(isMSBrowser)	{ blurredStuff.toggleClass("blurred", false); }
+
+	passPhrase.click(function(){ //clears the example pass phrase on first click + user stars typing
+		passPhrase[0].select();
+		passPhrase.off('click');
+	});
+});
+
+
+function selectFullPW(){passOut[0].select(); } //default click to select ends on 'punctuation'
+	
+
+</script>
+</head>
+<body>
+<form ng-controller="ctrl">
 <div>
         <span class="labels">Passphrase: </span>
 	<input class="blurred" type="text" id="passPhrase" 
-             	value="Correct Horse? battery staple!" oninput="updateOut()"/>
+             	ng-model="pwPhrase"/>
 </div>
 		
 <div>
 	<div class="labels">Password Length: </div>
-	<input id="passLength" type="range" min="6" max="16" step="1" value="9" 
-		onchange="passLength_onchange()"/>
-		<!-- for whatever reason onInput does not work in IE-->
-	<span id="length"> 9 </span>
+	<input id="passLength" ng-model="pwLength" type="range" 
+		min="6" max="16" step="1" />
+	<span id="length"> {{pwLength}} </span>
 </div>
 	
 <div id="output">	
         <span class="labels">Pin:</span>
-       	<input type="password" id="secretPin" size="4" onInput="updateOut()"/>
-	<span id="obCntrl">Obscure Text?<input type="checkbox" id="blur" 
-		checked onchange="blur_onchange()"/></span>
+       	<input type="password" id="secretPin" size="4" ng-maxlength="4" ng-model="pwPin"/>
+	<span id="obCntrl">Obscure Text?<input type="checkbox" id="blurMe" 
+		ng-model="blur"/></span>
         <span> <span class="labels">Resulting Password: </span>
-		<input class="blurred" id="passOut" type="text" readonly 
-			size="16" onselect="selectFullPW()"/> </span>
+	<input ng-model="pwOut" class="blurred" id="passOut" type="text"  
+		readonly size="16" onselect="selectFullPW()"/> </span>
 </div>
+</form>
+<!-- <script>onLoaded();</script> -->
 
 <div style="display:block; font-size:small">
       <p>Fair warning: Selecting text will make the password visible. 
@@ -251,6 +214,4 @@ convient generation of new ones.</p>
 <a href="http://www.passwordmeter.com/">check how strong your generated
 password is?</a></p>
 </div>
-
-</form>
 </body>

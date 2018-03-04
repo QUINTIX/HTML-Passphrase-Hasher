@@ -2,6 +2,10 @@
 Thumbs.db
 ehthumbs.db
 
+#no local debug
+angular.js
+*.code-workspace
+
 # Folder config file
 Desktop.ini
 
