@@ -1,6 +1,17 @@
+# =========================
+# Operating System Files
+# =========================
+
+# Windows
+# =========================
+
 # Windows image file caches
 Thumbs.db
 ehthumbs.db
+
+#no local debug
+angular.js
+*.code-workspace
 
 # Folder config file
 Desktop.ini
@@ -16,10 +27,6 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
-
-# =========================
-# Operating System Files
-# =========================
 
 # OSX
 # =========================
@@ -42,3 +49,10 @@ Network Trash Folder
 Temporary Items
 .apdisk
 PassEval.cs
+
+# =========================
+# Build Cruft
+# =========================
+
+node_modules/*
+package-lock.json

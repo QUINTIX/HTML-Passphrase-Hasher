@@ -1,0 +1,9 @@
+{ 
+	"files": ["em_ty.ts"],
+  "compilerOptions": {
+    "target": "es6",
+    "module": "commonjs",
+    "outDir": "out",
+		"sourceMap": true
+  }
+}
