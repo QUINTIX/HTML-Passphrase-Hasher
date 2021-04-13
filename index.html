@@ -171,7 +171,11 @@ $(function(){
 
 
 function selectFullPW(){passOut[0].select(); } //default click to select ends on 'punctuation'
-	
+
+function selectAndCopy(){
+	selectFullPW();
+	document.execCommand("copy");
+}
 
 </script>
 </head>
@@ -198,15 +202,14 @@ function selectFullPW(){passOut[0].select(); } //default click to select ends on
         <span> <span class="labels">Resulting Password: </span>
 	<input ng-model="pwOut" class="blurred" id="passOut" type="text"  
 		readonly size="16" onselect="selectFullPW()"/> </span>
+		<button onclick="selectAndCopy()">⎘ Copy</button>
 </div>
 </form>
 <!-- <script>onLoaded();</script> -->
 
 <div style="display:block; font-size:small">
       <p>Fair warning: Selecting text will make the password visible. 
-For security reasons javascript on modern browsers cannot write directly to the
-clipboard, ergo no convient copy button to get around selecting. Either way,
-this tool is not intended as a complete replacement for memorization. Rather
+This tool is not intended as a complete replacement for memorization. Rather
 it is for recalling passwords that are forgotten 
 <a href="https://xkcd.com/936/">for one reason or another</a> and for the 
 convient generation of new ones.</p>
