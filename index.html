@@ -55,7 +55,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 -->
 <style type="text/css">
   body{ font-family:sans-serif; }
-  form{  margin-left:auto; margin-right:auto; max-width:36em}
+	.centered  {margin-left:auto; margin-right:auto; max-width:36em}
   form div {display:flex; margin-bottom:.5em}
   /* form div span {flex-grow:1} */
   /*form div {display:block}*/
@@ -128,7 +128,7 @@ pHashr.controller('ctrl', function($scope){
 				{ $scope.pwOut = trimB64_sha256(
 					$scope.ppCleaned, $scope.pwLength); } //turn into chyme		
 			else 	{ $scope.pwOut = trimB64_sha256HMAC(
-					$scope.pwCleaned, $scope.pwPin, 
+					$scope.ppCleaned, $scope.pwPin, 
 					$scope.pwLength);}
 		else
 			{ $scope.pwOut = (MIN_IN - charsCaptured) + " remain";}
@@ -180,7 +180,7 @@ function selectAndCopy(){
 </script>
 </head>
 <body>
-<form ng-controller="ctrl">
+<form ng-controller="ctrl" class="centered">
 <div>
         <span class="labels">Passphrase: </span>
 	<input class="blurred" type="text" id="passPhrase" 
@@ -207,7 +207,7 @@ function selectAndCopy(){
 </form>
 <!-- <script>onLoaded();</script> -->
 
-<div style="display:block; font-size:small">
+<div class="centered" style="font-size:small">
       <p>Fair warning: Selecting text will make the password visible. 
 This tool is not intended as a complete replacement for memorization. Rather
 it is for recalling passwords that are forgotten 
