@@ -1,4 +1,4 @@
-import {SHA256, HmacSHA256, enc, lib} from 'crypto-js'
+import {SHA256, HmacSHA256, enc, lib, algo} from 'crypto-js'
 
 export interface PwHashProps {
 	phrase : string,
@@ -26,7 +26,7 @@ const trimB64_sha256HMAC = (input : string, key : string, length : number) : Gen
 
 const MIN_PIN = 4;
 const genIfPinThenHmac = (props : PwHashProps) : GenAndRaw =>
-	props.pin && props.length >= MIN_PIN ? 
+	props.pin && props.pin.length > MIN_PIN ? 
 		trimB64_sha256HMAC(props.phrase, props.pin!, props.length) :
 		trimB64_sha256(props.phrase, props.length)
 
@@ -34,8 +34,8 @@ const DEF_REGEX = /[\W\d]/g;
 
 const clean = (input : string) : string => input.replace(DEF_REGEX, '').toLowerCase();
 
-const MIN_IN = 12;
-const MAX_OUT = 85;
+export const MIN_IN = 12; // entirely arbitrary
+const MAX_OUT = 85; // precomputed Math.floor(algo.SHA256.create().blockSize / BITS_PER_SYMBOL);
 
 export const passphraseHasher = (props : PwHashProps) : GenAndRaw | number | undefined => {
 	if(props.length < 0 || props.length > MAX_OUT) {

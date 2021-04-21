@@ -55,4 +55,7 @@ PassEval.cs
 # =========================
 
 node_modules/*
+coverage/*
 package-lock.json
+yarn.lock
+test-report.html
