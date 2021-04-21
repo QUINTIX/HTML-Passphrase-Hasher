@@ -17,3 +17,9 @@ jobs:
           name: code-coverage-report
           path: coverage/**
           retention-days: 14
+      - name: Download a Build Artifact
+        uses: actions/download-artifact@v2.0.9
+        with:
+          # Artifact name
+          name: code-coverage-report
+
