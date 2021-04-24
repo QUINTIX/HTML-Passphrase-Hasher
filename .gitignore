@@ -54,6 +54,7 @@ PassEval.cs
 # Build Cruft
 # =========================
 
+build/*
 node_modules/*
 coverage/*
 package-lock.json
