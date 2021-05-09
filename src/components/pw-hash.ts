@@ -1,4 +1,8 @@
-import {SHA256, HmacSHA256, enc, lib, algo} from 'crypto-js'
+//import {SHA256, HmacSHA256, enc, lib, algo} from 'crypto-js'
+import sha256 from 'crypto-js/sha256';
+import hmacSHA256 from 'crypto-js/hmac-sha256';
+import Base64 from 'crypto-js/enc-base64';
+import WordArray from 'crypto-js/lib-typedarrays' 
 
 export interface PwHashProps {
 	phrase : string,
@@ -8,21 +12,21 @@ export interface PwHashProps {
 
 export interface GenAndRaw {
 	generated : string,
-	raw : lib.WordArray
+	raw : WordArray
 }
 
-const pairGenAndRaw = (input : lib.WordArray, length : number) : GenAndRaw => {
+const pairGenAndRaw = (input : WordArray, length : number) : GenAndRaw => {
 	return {
-		generated : input.toString(enc.Base64).substring(0, length),
+		generated : Base64.stringify(input).substring(0, length),
 		raw : input
 	};
 };
 
 const trimB64_sha256 = (input : string, length: number) : GenAndRaw =>
-	pairGenAndRaw(SHA256(input), length);
+	pairGenAndRaw(sha256(input), length);
 
 const trimB64_sha256HMAC = (input : string, key : string, length : number) : GenAndRaw => 
-	pairGenAndRaw(HmacSHA256(input, key), length);
+	pairGenAndRaw(hmacSHA256(input, key), length);
 
 const MIN_PIN = 4;
 const genIfPinThenHmac = (props : PwHashProps) : GenAndRaw =>

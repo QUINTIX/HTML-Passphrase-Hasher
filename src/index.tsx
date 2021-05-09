@@ -1,11 +1,3 @@
-import { h } from 'preact';
-
-const App = () => {
-	return (
-		<div>
-			hello Preact
-		</div>
-	);
-}
+import App from './routes/home/'
 
 export default App;

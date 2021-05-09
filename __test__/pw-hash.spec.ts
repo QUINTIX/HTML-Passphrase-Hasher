@@ -1,4 +1,4 @@
-import {PwHashProps, GenAndRaw, passphraseHasher, MIN_IN} from '../src/pw-hash'
+import {PwHashProps, GenAndRaw, passphraseHasher, MIN_IN} from '../src/components/pw-hash'
 import { expect } from 'chai';
 
 const MIN_EXPECTED = MIN_IN;
