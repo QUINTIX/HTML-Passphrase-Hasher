@@ -60,3 +60,5 @@ coverage/*
 package-lock.json
 yarn.lock
 test-report.html
+yarn-*.log
+size-report.json
