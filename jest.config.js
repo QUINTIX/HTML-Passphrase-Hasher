@@ -7,10 +7,10 @@ module.exports = {
     "**/?(*.)+(spec|test).+(ts|tsx|js)"
   ],
 	"collectCoverageFrom": [
-    "**/*.{ts,tsx}",
+    "**/*.+{ts,tsx}",
     "!**/node_modules/**",
     "!**/vendor/**",
-		"!<rootDir>/test/**"
+		"!**/test/**"
   ],
 	"reporters": [
     "default",
